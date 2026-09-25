@@ -1,0 +1,28 @@
+{
+  "rewrites": [
+    {
+      "source": "/__l5e/assets-v1/:id/safari-7s-2026.jpg",
+      "destination": "/images/safari-7s-2026.jpg"
+    },
+    {
+      "source": "/__l5e/assets-v1/:id/tikohub-logo.png",
+      "destination": "/images/tikohub-logo.png"
+    },
+    {
+      "source": "/__l5e/assets-v1/:id/lionesses-away.jpg",
+      "destination": "/images/lionesses-away.jpg"
+    },
+    {
+      "source": "/__l5e/assets-v1/:id/lionesses-home.jpg",
+      "destination": "/images/lionesses-home.jpg"
+    },
+    {
+      "source": "/__l5e/assets-v1/:id/shujaa-away.jpg",
+      "destination": "/images/shujaa-away.jpg"
+    },
+    {
+      "source": "/__l5e/assets-v1/:id/shujaa-home.jpg",
+      "destination": "/images/shujaa-home.jpg"
+    }
+  ]
+}
