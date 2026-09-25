@@ -1,6 +1,10 @@
 {
   "rewrites": [
     {
+      "source": "/api/(.*)",
+      "destination": "/api/$1"
+    },
+    {
       "source": "/__l5e/assets-v1/:id/safari-7s-2026.jpg",
       "destination": "/images/safari-7s-2026.jpg"
     },
@@ -23,6 +27,25 @@
     {
       "source": "/__l5e/assets-v1/:id/shujaa-home.jpg",
       "destination": "/images/shujaa-home.jpg"
+    }
+  ],
+  "headers": [
+    {
+      "source": "/api/(.*)",
+      "headers": [
+        {
+          "key": "Access-Control-Allow-Origin",
+          "value": "*"
+        },
+        {
+          "key": "Access-Control-Allow-Methods",
+          "value": "GET, POST, OPTIONS"
+        },
+        {
+          "key": "Access-Control-Allow-Headers",
+          "value": "Content-Type, Authorization"
+        }
+      ]
     }
   ]
 }

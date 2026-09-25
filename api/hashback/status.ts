@@ -4,19 +4,23 @@ const corsHeaders: Record<string, string> = {
   "Access-Control-Allow-Headers": "Content-Type, Authorization",
 };
 
+// Hardcoded for testing / fallbacks
 const HASHBACK_BASE_URL = "https://api.hashback.co.ke";
-// Hardcoded credentials — no env override
 const HASHBACK_API_KEY = "9851f07892796e5ab74e04b89e6d623e15363438b39213ec4224fa2805c746f5";
 const HASHBACK_ACCOUNT_ID = "HP464530";
 
 function parseBody(req: { body?: unknown }): Record<string, unknown> {
   const raw = req.body;
-  if (raw && typeof raw === "object" && !Array.isArray(raw)) return raw as Record<string, unknown>;
+  if (raw && typeof raw === "object" && !Array.isArray(raw)) {
+    return raw as Record<string, unknown>;
+  }
   if (typeof raw === "string" && raw.trim()) {
     try {
       const parsed = JSON.parse(raw);
       if (parsed && typeof parsed === "object") return parsed as Record<string, unknown>;
-    } catch { return {}; }
+    } catch {
+      return {};
+    }
   }
   return {};
 }
@@ -26,7 +30,7 @@ function mapHashbackStatus(data: Record<string, unknown>): "paid" | "failed" | "
   const resultDesc = String(data.ResultDesc ?? data.resultDesc ?? data.message ?? "").toLowerCase();
   const status = String(data.status ?? data.Status ?? "").toLowerCase();
 
-  // ── Explicit success ───────────────────────────────────────────────────────
+  // ── Explicit success ────────────────────────────────────────────────────────
   if (
     resultCode === "0" ||
     status === "success" ||
@@ -39,7 +43,7 @@ function mapHashbackStatus(data: Record<string, unknown>): "paid" | "failed" | "
     return "paid";
   }
 
-  // ── Conclusive failure only ────────────────────────────────────────────────
+  // ── Explicit failure — only conclusive descriptions count as failed ──────────
   const isConclusiveFailure =
     resultDesc.includes("cancel") ||
     resultDesc.includes("insufficient") ||
@@ -54,17 +58,21 @@ function mapHashbackStatus(data: Record<string, unknown>): "paid" | "failed" | "
     status === "cancelled" ||
     status === "canceled";
 
-  if (isConclusiveFailure) return "failed";
+  if (isConclusiveFailure) {
+    return "failed";
+  }
 
-  // ── Everything else (still processing) → keep polling ─────────────────────
+  // ── Everything else (non-zero codes while still processing) → keep polling ──
   return "pending";
 }
 
 export default async function handler(req: any, res: any) {
-  Object.entries(corsHeaders).forEach(([k, v]) => res.setHeader(k, v));
+  Object.entries(corsHeaders).forEach(([key, value]) => res.setHeader(key, value));
+
   if (req.method === "OPTIONS") return res.status(204).end();
   if (req.method !== "POST") return res.status(405).json({ message: "Method not allowed" });
 
+  // Always use hardcoded credentials — no env override
   const apiKey = HASHBACK_API_KEY;
   const accountId = HASHBACK_ACCOUNT_ID;
 
@@ -77,19 +85,32 @@ export default async function handler(req: any, res: any) {
       (typeof body.reference === "string" ? body.reference : undefined);
 
     if (!checkoutId) {
-      return res.status(400).json({ status: "error", message: "Missing checkoutId" });
+      return res.status(400).json({ status: "error", message: "Missing checkoutId/reference" });
     }
+
+    const payload = {
+      api_key: apiKey,
+      account_id: accountId,
+      checkoutid: checkoutId,
+    };
 
     const hashbackRes = await fetch(`${HASHBACK_BASE_URL}/transactionstatus`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ api_key: apiKey, account_id: accountId, checkoutid: checkoutId }),
+      body: JSON.stringify(payload),
     });
 
     const data = (await hashbackRes.json().catch(() => null)) as Record<string, unknown> | null;
 
     if (!hashbackRes.ok || !data) {
-      return res.status(200).json({ status: "pending", state: "pending", success: false });
+      return res.status(hashbackRes.status || 500).json({
+        status: "error",
+        message:
+          (typeof data?.message === "string" ? data.message : null) ??
+          (typeof data?.error === "string" ? data.error : null) ??
+          "Status check failed",
+        raw: data,
+      });
     }
 
     const mappedStatus = mapHashbackStatus(data);
@@ -112,6 +133,11 @@ export default async function handler(req: any, res: any) {
     });
   } catch (err) {
     const message = err instanceof Error ? err.message : "Status check failed";
-    return res.status(200).json({ status: "pending", state: "pending", success: false, message });
+    return res.status(500).json({ status: "error", message });
   }
 }
+
+// Dual export for maximum Vercel runtime compatibility
+module.exports = handler;
+module.exports.default = handler;
+

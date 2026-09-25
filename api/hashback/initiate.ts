@@ -11,27 +11,34 @@ const HASHBACK_ACCOUNT_ID = "HP464530";
 
 function parseBody(req: { body?: unknown }): Record<string, unknown> {
   const raw = req.body;
-  if (raw && typeof raw === "object" && !Array.isArray(raw)) return raw as Record<string, unknown>;
+  if (raw && typeof raw === "object" && !Array.isArray(raw)) {
+    return raw as Record<string, unknown>;
+  }
   if (typeof raw === "string" && raw.trim()) {
     try {
       const parsed = JSON.parse(raw);
       if (parsed && typeof parsed === "object") return parsed as Record<string, unknown>;
-    } catch { return {}; }
+    } catch {
+      return {};
+    }
   }
   return {};
 }
 
-function normalizePhone(phone: string | undefined | null): string | null {
+function normalizePhoneNumber(phone: string | undefined | null): string | null {
   if (!phone) return null;
   const cleaned = String(phone).replace(/\D/g, "");
   if (cleaned.startsWith("0") && cleaned.length === 10) return `254${cleaned.slice(1)}`;
   if (cleaned.startsWith("254") && cleaned.length === 12) return cleaned;
-  if ((cleaned.startsWith("7") || cleaned.startsWith("1")) && cleaned.length === 9) return `254${cleaned}`;
+  if ((cleaned.startsWith("7") || cleaned.startsWith("1")) && cleaned.length === 9) {
+    return `254${cleaned}`;
+  }
   return null;
 }
 
 export default async function handler(req: any, res: any) {
-  Object.entries(corsHeaders).forEach(([k, v]) => res.setHeader(k, v));
+  Object.entries(corsHeaders).forEach(([key, value]) => res.setHeader(key, value));
+
   if (req.method === "OPTIONS") return res.status(204).end();
   if (req.method !== "POST") return res.status(405).json({ message: "Method not allowed" });
 
@@ -43,9 +50,10 @@ export default async function handler(req: any, res: any) {
     const rawPhone =
       (typeof body.phone === "string" ? body.phone : undefined) ??
       (typeof body.phoneNumber === "string" ? body.phoneNumber : undefined) ??
+      (typeof body.phone_number === "string" ? body.phone_number : undefined) ??
       (typeof body.msisdn === "string" ? body.msisdn : undefined);
 
-    const normalizedPhone = normalizePhone(rawPhone);
+    const normalizedPhone = normalizePhoneNumber(rawPhone);
     if (!normalizedPhone) {
       return res.status(400).json({ success: false, message: "Invalid phone number format" });
     }
@@ -55,23 +63,26 @@ export default async function handler(req: any, res: any) {
       return res.status(400).json({ success: false, message: "Invalid amount" });
     }
 
-    const referencePrefix = typeof body.referencePrefix === "string" ? body.referencePrefix : "SAFARI7S";
-    const reference =
+    const referencePrefix =
+      typeof body.referencePrefix === "string" ? body.referencePrefix : "SAFARI7S";
+    const externalReference =
       typeof body.reference === "string"
         ? body.reference
-        : `${referencePrefix}-${Date.now()}-${Math.floor(Math.random() * 9999)}`;
+        : `${referencePrefix}-${Date.now()}-${Math.floor(Math.random() * 1000)}`;
 
     const payload = {
       api_key: apiKey,
       account_id: accountId,
       amount: String(Math.round(amount)),
       msisdn: normalizedPhone,
-      reference,
+      reference: externalReference,
     };
 
     const hashbackRes = await fetch(`${HASHBACK_BASE_URL}/initiatestk`, {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
+      headers: {
+        "Content-Type": "application/json",
+      },
       body: JSON.stringify(payload),
     });
 
@@ -117,12 +128,12 @@ export default async function handler(req: any, res: any) {
       success: true,
       checkoutId,
       checkoutRequestId: checkoutId,
-      reference,
+      reference: externalReference,
       normalizedPhone,
       message:
         (typeof data.CustomerMessage === "string" ? data.CustomerMessage : null) ??
         (typeof data.ResponseDescription === "string" ? data.ResponseDescription : null) ??
-        "STK push sent to your phone",
+        (typeof data.message === "string" ? data.message : "STK push initiated"),
       raw: data,
     });
   } catch (err) {
@@ -130,3 +141,8 @@ export default async function handler(req: any, res: any) {
     return res.status(500).json({ success: false, message });
   }
 }
+
+// Dual export for maximum Vercel runtime compatibility
+module.exports = handler;
+module.exports.default = handler;
+
