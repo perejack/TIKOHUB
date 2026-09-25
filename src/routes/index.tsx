@@ -31,9 +31,9 @@ export const Route = createFileRoute("/")({
 });
 
 const ticketGroups = [
-  { day: "Fri, 9 Oct 2026", name: "Regular", price: 300 },
-  { day: "Sat, 10 Oct 2026", name: "Wave 2 Regular Ticket", price: 750 },
-  { day: "Sun, 11 Oct 2026", name: "Wave 2 Regular Ticket", price: 750 },
+  { day: "Fri, 9 Oct 2026", name: "Regular (Opening/Day 1)", price: 300 },
+  { day: "Sat, 10 Oct 2026", name: "Wave 2 Regular", price: 750 },
+  { day: "Sun, 11 Oct 2026", name: "Wave 2 Regular", price: 750 },
   { day: "Season pass · Sat & Sun", name: "Wave 2 Regular Season", price: 1000 },
 ];
 
