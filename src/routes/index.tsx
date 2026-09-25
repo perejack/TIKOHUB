@@ -31,10 +31,10 @@ export const Route = createFileRoute("/")({
 });
 
 const ticketGroups = [
-  { day: "Fri, 9 Oct 2026", name: "Regular", price: 10 },
-  { day: "Sat, 10 Oct 2026", name: "Wave 2 Regular Ticket", price: 10 },
-  { day: "Sun, 11 Oct 2026", name: "Wave 2 Regular Ticket", price: 10 },
-  { day: "Season pass · Sat & Sun", name: "Wave 2 Regular Season", price: 10 },
+  { day: "Fri, 9 Oct 2026", name: "Regular", price: 300 },
+  { day: "Sat, 10 Oct 2026", name: "Wave 2 Regular Ticket", price: 750 },
+  { day: "Sun, 11 Oct 2026", name: "Wave 2 Regular Ticket", price: 750 },
+  { day: "Season pass · Sat & Sun", name: "Wave 2 Regular Season", price: 1000 },
 ];
 
 const merch = [
@@ -44,7 +44,7 @@ const merch = [
   { name: "Shujaa Home Replica Jersey", sizes: "S M XL XXL 3XL 4XL 5XL XS L", image: shujaaHome.url },
 ] as const;
 
-const MERCH_PRICE = 10;
+const MERCH_PRICE = 7000;
 
 function Brand() {
   return <a href="#top" className="flex shrink-0 items-center" aria-label="TikoHUB home"><img src={tikoHubLogo.url} alt="TikoHUB" className="h-14 w-auto object-contain" /></a>;
@@ -125,8 +125,7 @@ function CheckoutPage({ counts, added, selectedSizes, total, onBack }: CheckoutP
 
     const formatted = MpesaService.formatPhone(raw);
     const ref = `SAFARI7S-${Date.now()}`;
-    const paymentAmount = 10; // 10 KES for testing
-    const result = await MpesaService.initiateSTKPush(formatted, paymentAmount, ref);
+    const result = await MpesaService.initiateSTKPush(formatted, total, ref);
 
     setIsSending(false);
 
@@ -401,15 +400,15 @@ function CheckoutPage({ counts, added, selectedSizes, total, onBack }: CheckoutP
           <section className="rounded-2xl border border-border bg-panel/50 p-5 sm:p-7">
             <h2 className="title-rule text-4xl font-bold">Payment Method</h2>
             <div className="mt-7">
-              <label className="grid cursor-pointer grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-4 rounded-xl border border-ticket-strong bg-ticket/10 p-5 transition">
-                <span className="grid size-12 place-items-center rounded-lg bg-success/10 text-success">
-                  <Smartphone className="size-6" />
-                </span>
-                <span>
+              <label className="grid cursor-pointer grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-4 rounded-xl border border-emerald-500 bg-emerald-500/10 p-5 transition">
+                <div className="flex h-12 w-20 shrink-0 items-center justify-center rounded-lg bg-white p-1.5 shadow-sm border border-emerald-200">
+                  <img src="/images/mpesa-logo.png" alt="M-Pesa" className="h-full w-full object-contain" />
+                </div>
+                <div>
                   <strong className="block text-lg">M-Pesa STK Push</strong>
                   <span className="text-sm text-muted-foreground">Instant M-Pesa prompt on your phone</span>
-                </span>
-                <span className="grid size-8 place-items-center rounded-full bg-ticket">
+                </div>
+                <span className="grid size-8 place-items-center rounded-full bg-emerald-500 text-white">
                   <Check className="size-5" />
                 </span>
               </label>
@@ -434,8 +433,8 @@ function CheckoutPage({ counts, added, selectedSizes, total, onBack }: CheckoutP
             <div className="relative overflow-hidden bg-gradient-to-br from-emerald-500 via-teal-500 to-emerald-600 p-6 text-white">
               <div className="relative flex items-center justify-between">
                 <div className="flex items-center gap-3">
-                  <div className="w-12 h-12 rounded-xl bg-white/20 backdrop-blur-sm flex items-center justify-center">
-                    <Smartphone className="w-6 h-6" />
+                  <div className="h-11 w-16 rounded-xl bg-white p-1 flex items-center justify-center shadow-md shrink-0">
+                    <img src="/images/mpesa-logo.png" alt="M-Pesa" className="h-full w-full object-contain" />
                   </div>
                   <div>
                     <h3 className="font-heading font-bold text-lg">M-Pesa Payment</h3>
@@ -458,8 +457,8 @@ function CheckoutPage({ counts, added, selectedSizes, total, onBack }: CheckoutP
               {payModalStep === "phone" && (
                 <div className="space-y-4">
                   <div className="text-center mb-4">
-                    <div className="w-16 h-16 rounded-2xl mx-auto mb-3 flex items-center justify-center bg-gradient-to-br from-emerald-400 to-teal-500 shadow-lg text-white">
-                      <Smartphone className="w-8 h-8" />
+                    <div className="w-24 h-14 rounded-2xl mx-auto mb-3 flex items-center justify-center bg-white p-2 shadow-lg border border-border">
+                      <img src="/images/mpesa-logo.png" alt="M-Pesa" className="h-full w-full object-contain" />
                     </div>
                     <h4 className="font-heading font-bold text-lg mb-1">Enter M-Pesa Phone Number</h4>
                     <p className="text-xs text-muted-foreground">
@@ -521,10 +520,14 @@ function CheckoutPage({ counts, added, selectedSizes, total, onBack }: CheckoutP
               {/* Step 2: Processing loader */}
               {payModalStep === "processing" && (
                 <div className="text-center py-6">
-                  <div className="relative w-24 h-24 mx-auto mb-6">
-                    <div className="absolute inset-0 rounded-full bg-gradient-to-r from-emerald-400 to-teal-500 animate-ping opacity-20" />
-                    <div className="relative w-24 h-24 rounded-full bg-gradient-to-br from-emerald-100 to-teal-100 dark:from-emerald-900/30 dark:to-teal-900/30 flex items-center justify-center">
-                      <Loader2 className="w-10 h-10 text-emerald-500 animate-spin" />
+                  <div className="relative w-28 h-20 mx-auto mb-6">
+                    <div className="absolute inset-0 rounded-2xl bg-gradient-to-r from-emerald-400 to-teal-500 animate-ping opacity-20" />
+                    <div className="relative w-28 h-20 rounded-2xl bg-white p-2 shadow-lg border border-emerald-200 flex flex-col items-center justify-center">
+                      <img src="/images/mpesa-logo.png" alt="M-Pesa" className="h-9 w-full object-contain mb-1" />
+                      <div className="flex items-center gap-1 text-[11px] font-bold text-emerald-600">
+                        <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                        <span>Prompting phone…</span>
+                      </div>
                     </div>
                   </div>
 
@@ -630,7 +633,7 @@ function SafariEvent() {
           <div id="details" className="scroll-mt-28"><span className="inline-flex rounded-full bg-ticket px-4 py-1 text-xs font-bold uppercase text-ticket-foreground">TikoHUB presents</span><h1 className="mt-4 font-display text-6xl font-bold uppercase leading-none sm:text-7xl lg:text-8xl">Safari 7s 2026</h1><h2 className="mt-7 text-3xl font-bold sm:text-4xl">Nyayo Stadium</h2><div className="mt-6 flex flex-wrap gap-3"><span className="inline-flex items-center gap-2 rounded-full bg-panel px-4 py-2"><Ticket className="size-4"/> Sports</span><span className="inline-flex items-center gap-2 rounded-full bg-panel px-4 py-2"><MapPin className="size-4 text-warm"/> Nairobi</span></div></div>
 
           <section id="tickets" className="mt-10 scroll-mt-28 rounded-2xl border border-border bg-panel p-5 sm:p-8">
-            <div className="grid grid-cols-[minmax(0,1fr)_auto] items-end gap-4"><h2 className="text-3xl font-bold sm:text-4xl">From 10 Ksh.</h2><span className="text-xs font-semibold uppercase tracking-[0.2em] text-muted-foreground">4 ticket types</span></div>
+            <div className="grid grid-cols-[minmax(0,1fr)_auto] items-end gap-4"><h2 className="text-3xl font-bold sm:text-4xl">From 300 Ksh.</h2><span className="text-xs font-semibold uppercase tracking-[0.2em] text-muted-foreground">4 ticket types</span></div>
             <div className="mt-6 divide-y divide-border">
               {ticketGroups.map((ticket, i) => <div key={ticket.day} className="py-5"><p className="flex items-center gap-2 text-sm font-bold uppercase tracking-[0.14em] text-warm"><CalendarDays className="size-4"/>{ticket.day}</p><div className="mt-4 grid grid-cols-[minmax(0,1fr)_auto] items-center gap-3 rounded-lg bg-background/60 p-4"><div className="min-w-0"><h3 className="font-bold sm:text-lg">{ticket.name} (Ksh. {ticket.price.toLocaleString()})</h3><p className="mt-1">Ksh. {ticket.price.toLocaleString()}</p></div><div className="flex shrink-0 items-center gap-2 sm:gap-4"><Button size="icon" variant="outline" className="rounded-full" aria-label={`Remove ${ticket.name}`} disabled={!counts[i]} onClick={() => adjust(i, -1)}><Minus/></Button><output className="w-4 text-center font-bold">{counts[i]}</output><Button size="icon" variant="outline" className="rounded-full" aria-label={`Add ${ticket.name}`} onClick={() => adjust(i, 1)}><Plus/></Button></div></div></div>)}
             </div>
