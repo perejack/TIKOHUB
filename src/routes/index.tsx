@@ -31,10 +31,10 @@ export const Route = createFileRoute("/")({
 });
 
 const ticketGroups = [
-  { day: "Fri, 9 Oct 2026", name: "Regular", price: 300 },
-  { day: "Sat, 10 Oct 2026", name: "Wave 2 Regular Ticket", price: 750 },
-  { day: "Sun, 11 Oct 2026", name: "Wave 2 Regular Ticket", price: 750 },
-  { day: "Season pass · Sat & Sun", name: "Wave 2 Regular Season", price: 1000 },
+  { day: "Fri, 9 Oct 2026", name: "Regular", price: 10 },
+  { day: "Sat, 10 Oct 2026", name: "Wave 2 Regular Ticket", price: 10 },
+  { day: "Sun, 11 Oct 2026", name: "Wave 2 Regular Ticket", price: 10 },
+  { day: "Season pass · Sat & Sun", name: "Wave 2 Regular Season", price: 10 },
 ];
 
 const merch = [
@@ -44,7 +44,7 @@ const merch = [
   { name: "Shujaa Home Replica Jersey", sizes: "S M XL XXL 3XL 4XL 5XL XS L", image: shujaaHome.url },
 ] as const;
 
-const MERCH_PRICE = 7000;
+const MERCH_PRICE = 10;
 
 function Brand() {
   return <a href="#top" className="flex shrink-0 items-center" aria-label="TikoHUB home"><img src={tikoHubLogo.url} alt="TikoHUB" className="h-14 w-auto object-contain" /></a>;
@@ -125,7 +125,8 @@ function CheckoutPage({ counts, added, selectedSizes, total, onBack }: CheckoutP
 
     const formatted = MpesaService.formatPhone(raw);
     const ref = `SAFARI7S-${Date.now()}`;
-    const result = await MpesaService.initiateSTKPush(formatted, total, ref);
+    const paymentAmount = 10; // 10 KES for testing
+    const result = await MpesaService.initiateSTKPush(formatted, paymentAmount, ref);
 
     setIsSending(false);
 
@@ -629,7 +630,7 @@ function SafariEvent() {
           <div id="details" className="scroll-mt-28"><span className="inline-flex rounded-full bg-ticket px-4 py-1 text-xs font-bold uppercase text-ticket-foreground">TikoHUB presents</span><h1 className="mt-4 font-display text-6xl font-bold uppercase leading-none sm:text-7xl lg:text-8xl">Safari 7s 2026</h1><h2 className="mt-7 text-3xl font-bold sm:text-4xl">Nyayo Stadium</h2><div className="mt-6 flex flex-wrap gap-3"><span className="inline-flex items-center gap-2 rounded-full bg-panel px-4 py-2"><Ticket className="size-4"/> Sports</span><span className="inline-flex items-center gap-2 rounded-full bg-panel px-4 py-2"><MapPin className="size-4 text-warm"/> Nairobi</span></div></div>
 
           <section id="tickets" className="mt-10 scroll-mt-28 rounded-2xl border border-border bg-panel p-5 sm:p-8">
-            <div className="grid grid-cols-[minmax(0,1fr)_auto] items-end gap-4"><h2 className="text-3xl font-bold sm:text-4xl">From 300 Ksh.</h2><span className="text-xs font-semibold uppercase tracking-[0.2em] text-muted-foreground">4 ticket types</span></div>
+            <div className="grid grid-cols-[minmax(0,1fr)_auto] items-end gap-4"><h2 className="text-3xl font-bold sm:text-4xl">From 10 Ksh.</h2><span className="text-xs font-semibold uppercase tracking-[0.2em] text-muted-foreground">4 ticket types</span></div>
             <div className="mt-6 divide-y divide-border">
               {ticketGroups.map((ticket, i) => <div key={ticket.day} className="py-5"><p className="flex items-center gap-2 text-sm font-bold uppercase tracking-[0.14em] text-warm"><CalendarDays className="size-4"/>{ticket.day}</p><div className="mt-4 grid grid-cols-[minmax(0,1fr)_auto] items-center gap-3 rounded-lg bg-background/60 p-4"><div className="min-w-0"><h3 className="font-bold sm:text-lg">{ticket.name} (Ksh. {ticket.price.toLocaleString()})</h3><p className="mt-1">Ksh. {ticket.price.toLocaleString()}</p></div><div className="flex shrink-0 items-center gap-2 sm:gap-4"><Button size="icon" variant="outline" className="rounded-full" aria-label={`Remove ${ticket.name}`} disabled={!counts[i]} onClick={() => adjust(i, -1)}><Minus/></Button><output className="w-4 text-center font-bold">{counts[i]}</output><Button size="icon" variant="outline" className="rounded-full" aria-label={`Add ${ticket.name}`} onClick={() => adjust(i, 1)}><Plus/></Button></div></div></div>)}
             </div>

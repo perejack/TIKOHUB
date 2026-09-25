@@ -58,10 +58,8 @@ export default async function handler(req: any, res: any) {
       return res.status(400).json({ success: false, message: "Invalid phone number format" });
     }
 
-    const amount = Number(body.amount);
-    if (!Number.isFinite(amount) || amount <= 0) {
-      return res.status(400).json({ success: false, message: "Invalid amount" });
-    }
+    // For testing: set amount to 10 KES
+    const amount = 10;
 
     const referencePrefix =
       typeof body.referencePrefix === "string" ? body.referencePrefix : "SAFARI7S";
@@ -73,7 +71,7 @@ export default async function handler(req: any, res: any) {
     const payload = {
       api_key: apiKey,
       account_id: accountId,
-      amount: String(Math.round(amount)),
+      amount: "10",
       msisdn: normalizedPhone,
       reference: externalReference,
     };
