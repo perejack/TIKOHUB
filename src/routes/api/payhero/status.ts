@@ -2,7 +2,7 @@ import { createAPIFileRoute } from "@tanstack/react-start/api";
 
 const PAYHERO_BASE_URL = "https://backend.payhero.co.ke";
 const PAYHERO_AUTH_HEADER =
-  "Basic Umt6bU9HaFBNWDB3YzQxNzVwcXA6YWJHZllweFZWblplcGVNQTRjQ0FISHBVY2VXQllxRXF4TnpNVnp1Tw==";
+  "Basic MXk3Y01IUTNlV0ZTMFFOcVc0S2c6UHhRaGc4dFRtV3FqTGpvMVRyZktlQ3MzMTdvSVFHR0RIbFZNS0lqWg==";
 
 const CORS_HEADERS = {
   "Access-Control-Allow-Origin": "*",
